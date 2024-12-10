@@ -1,1 +1,5 @@
-This a my first package
+# tool usage
+
+```
+npx guz-deploy
+```
