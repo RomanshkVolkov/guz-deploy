@@ -44,3 +44,19 @@ folders.forEach((folder) => {
       console.error(`Error copying folder ${folder}:`, error.message);
    }
 });
+
+const rootFiles = ['.dockerignore', 'Dockerfile.nextjs', 'Dockerfile.api'];
+
+rootFiles.forEach((file) => {
+   try {
+      const source = path.join(__dirname, file);
+      const destination = path.join(currentDirectory, file);
+
+      copyFileSync(source, destination);
+      console.log(`Copied ${file} to ${destination}`);
+   } catch (error) {
+      console.error(`Error copying file ${file}:`, error.message);
+   }
+});
+
+console.log('Done!');
