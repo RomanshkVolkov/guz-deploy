@@ -9,7 +9,10 @@
    "files": [
       "dist",
       ".deploy",
-      ".github"
+      ".github",
+      ".dockerignore",
+      "Dockerfile.nextjs",
+      "Dockerfile.api"
    ],
    "scripts": {
       "test": "./.deploy/debug.sh"
