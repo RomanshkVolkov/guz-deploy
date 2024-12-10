@@ -1,0 +1,47 @@
+{
+   "name": "guz-deploy",
+   "version": "1.0.10-beta",
+   "description": "this a fast start deployment standard docker swarm server and caddy",
+   "main": "./index.js",
+   "bin": {
+      "init": "./index.js"
+   },
+   "files": [
+      "dist",
+      ".deploy",
+      ".github"
+   ],
+   "scripts": {
+      "test": "test"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/RomanshkVolkov/guz-deploy.git"
+   },
+   "keywords": [
+      "server",
+      "|",
+      "caddy",
+      "|",
+      "github",
+      "container",
+      "registry",
+      "|",
+      "bash",
+      "|",
+      "automate",
+      "|",
+      "config",
+      "|",
+      "fast",
+      "start",
+      "|",
+      "nextjs"
+   ],
+   "author": "Alexandergv2117 | RomanshkVolkov",
+   "license": "MPL-2.0",
+   "bugs": {
+      "url": "https://github.com/RomanshkVolkov/guz-deploy/issues"
+   },
+   "homepage": "https://github.com/RomanshkVolkov/guz-deploy#readme"
+}

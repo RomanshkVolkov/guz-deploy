@@ -1,0 +1,24 @@
+services:
+  STACK_PLACEHOLDER-app:
+    image: IMAGE_PLACEHOLDER
+    environment:
+      - PORT=3000
+      - DATABASE_URL=DATABASE_URL_PLACEHOLDER
+      - AUTH_SECRET=SECRET_NEXT_AUTH_PLACEHOLDER
+      - MAIL_EMAIL=MAIL_EMAIL_PLACEHOLDER
+      - MAIL_PASSWORD=MAIL_PASSWORD_PLACEHOLDER
+      - NEXTAUTH_URL=https://CADDY_HOST_PLACEHOLDER
+    networks:
+      - caddy
+    deploy:
+      replicas: 1
+      labels:
+        caddy: CADDY_HOST_PLACEHOLDER
+        caddy.tls: CADDY_TLS_PLACEHOLDER"
+        caddy.tls.on_demand:
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+
+
+networks:
+  caddy:
+    external: true
