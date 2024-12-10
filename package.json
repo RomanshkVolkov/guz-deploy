@@ -12,7 +12,7 @@
       ".github"
    ],
    "scripts": {
-      "test": "test"
+      "test": "./.deploy/debug.sh"
    },
    "repository": {
       "type": "git",
@@ -20,22 +20,15 @@
    },
    "keywords": [
       "server",
-      "|",
       "caddy",
-      "|",
       "github",
       "container",
       "registry",
-      "|",
       "bash",
-      "|",
       "automate",
-      "|",
       "config",
-      "|",
       "fast",
       "start",
-      "|",
       "nextjs"
    ],
    "author": "Alexandergv2117 | RomanshkVolkov",

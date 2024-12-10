@@ -58,7 +58,17 @@ for var in $(env | grep '^DEPLOY_'); do
   yaml_content=$(echo "$yaml_content" | yq eval ".services.STACK_PLACEHOLDER-app.environment += [\"$cleaned_key=$value\"]")
 done
 
+# exclude envs array strings
+declare -A exclude_envs=(
+  ["STACK"]=1
+)
+
 function replace_env() {
+  #if exclude env return
+  if [[ -v ${exclude_envs[$1]} ]]; then
+    return
+  fi
+
   env_name="${1}_PLACEHOLDER"
   env_value=$2
   # for debug
