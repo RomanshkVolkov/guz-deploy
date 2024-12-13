@@ -12,7 +12,8 @@
       ".github",
       ".dockerignore",
       "Dockerfile.nextjs",
-      "Dockerfile.api"
+      "Dockerfile.api",
+      "Dockerfile.api.only-js"
    ],
    "scripts": {
       "test": "./.deploy/debug.sh"
