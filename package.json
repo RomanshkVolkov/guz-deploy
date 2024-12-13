@@ -1,6 +1,6 @@
 {
    "name": "guz-deploy",
-   "version": "1.0.12",
+   "version": "1.0.13",
    "description": "this a fast start deployment standard docker swarm server and caddy",
    "main": "./index.js",
    "bin": {
