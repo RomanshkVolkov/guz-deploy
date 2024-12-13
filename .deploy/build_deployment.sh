@@ -7,12 +7,7 @@ declare -A params=(
   [IMAGE]=""
   [CADDY_HOST]=""
   [CADDY_TLS]=""
-  ## env vars
-  [DEPLOYMENT_ENVIROMENT]=""
-  [DATABASE_URL]=""
-  [SECRET_NEXT_AUTH]=""
-  [MAIL_EMAIL]=""
-  [MAIL_PASSWORD]=""
+  ## add more envs here same on the debug.sh
 )
 
 for arg in "$@"; do
@@ -35,44 +30,18 @@ done
 
 yaml_content=$(cat "$deployment_dir/deployment.template.yml")
 
-# envs
-
-if [ -f "$env_file" ]; then
-  while IFS='=' read -r key value; do
-    if [[ -n "$key" && -n "$value" && "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
-      export "$key=$value" >/dev/null 2>&1
-    fi
-  done < <(grep -v '^#' "$env_file")
-else
-  while IFS='=' read -r key value; do
-    if [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ && -n "$value" ]]; then
-      export "$key=$value" >/dev/null 2>&1
-    fi
-  done < <(env)
-fi
-
-for var in $(env | grep '^DEPLOY_'); do
-  IFS='=' read -r key value <<<"$var"
-  cleaned_key="${key#DEPLOY_}"
-
-  yaml_content=$(echo "$yaml_content" | yq eval ".services.STACK_PLACEHOLDER-app.environment += [\"$cleaned_key=$value\"]")
-done
-
 # exclude envs array strings
 declare -A exclude_envs=(
   ["STACK"]=1
 )
 
 function replace_env() {
-  #if exclude env return
   if [[ -v ${exclude_envs[$1]} ]]; then
     return
   fi
 
   env_name="${1}_PLACEHOLDER"
-  env_value=$2
-  # for debug
-  # echo "Replacing $env_name with $env_value"
+  env_value="${2}"
 
   yaml_content=$(echo "$yaml_content" | sed "s|$env_name|$env_value|g")
 }
@@ -82,7 +51,7 @@ for key in "${!params[@]}"; do
   replace_env "$key" "${params[$key]}"
 done
 
-#replace_env "STACK_PLACEHOLDER" "$stack-$environment"
-replace_env "STACK_PLACEHOLDER" "${params[STACK]}${params[DEPLOYMENT_ENVIROMENT]}"
+stack="${params[STACK]}-${params[DEPLOYMENT_ENVIROMENT]}"
+yaml_content=$(echo "$yaml_content" | sed "s|STACK_PLACEHOLDER|$stack|g")
 
 echo "$yaml_content"

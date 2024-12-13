@@ -49,11 +49,8 @@ jobs:
               IMAGE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'):$SHORT_SHA" \
               CADDY_HOST="${{ vars.HOST_DNS }}" \
               CADDY_TLS="${{ vars.TLS}}" \
-              DATABASE_URL="${{secrets.DATABASE_URL}}" \
-              SECRET_NEXT_AUTH="${{secrets.AUTH_SECRET}}" \
-              MAIL_EMAIL="${{secrets.MAIL_EMAIL}}" \
-              MAIL_PASSWORD="${{secrets.MAIL_PASSWORD}}" \
               > /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml
+           # add more environment variables here same debug.sh and deployment.template.yml before > redirect /tmp/...
 
          - name: Set up SSH key
            uses: webfactory/ssh-agent@v0.5.3

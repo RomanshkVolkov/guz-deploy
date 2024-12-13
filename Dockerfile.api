@@ -6,7 +6,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat build-base python3
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 FROM base AS builder
@@ -14,24 +14,31 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN corepack enable pnpm && pnpm build
+RUN corepack enable pnpm && pnpm run build
 
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 --ingroup nodejs nodejs
 # express server or nestjs
 
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./
+# prefer COPY . . and exclude by .dockerignore
+# warning to use .dockerignore for build necessary files on stage builder
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/dailyGetData ./dailyGetData
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+
+RUN mkdir -p logs
+RUN chown -R nodejs:nodejs .
 
 USER nodejs
 
 EXPOSE 8000
 ENV PORT=8000
 
-# check the main file for the dist folder 
-CMD ["node", "main.js"]
+# check the main file for the dist folder
+CMD ["node", "./dist/index.js"]
