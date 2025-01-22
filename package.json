@@ -13,7 +13,8 @@
       ".dockerignore",
       "Dockerfile.nextjs",
       "Dockerfile.api",
-      "Dockerfile.api.only-js"
+      "Dockerfile.api.only-js",
+      "Dockerfile.NET.sdk-7"
    ],
    "scripts": {
       "test": "./.deploy/debug.sh"

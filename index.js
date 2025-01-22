@@ -45,7 +45,13 @@ folders.forEach((folder) => {
    }
 });
 
-const rootFiles = ['.dockerignore', 'Dockerfile.nextjs', 'Dockerfile.api', 'Dockerfile.api.only-js'];
+const rootFiles = [
+   '.dockerignore',
+   'Dockerfile.nextjs',
+   'Dockerfile.api',
+   'Dockerfile.api.only-js',
+   'Dockerfile.NET.sdk-7',
+];
 
 rootFiles.forEach((file) => {
    try {

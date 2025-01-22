@@ -18,6 +18,8 @@ jobs:
          packages: write
       env:
          ENVIRONMENT: prod
+         REGISTRY: 'ghcr.io'
+         IMAGE: '${{ github.repository_owner }}/${{ github.event.repository.name}}'
       steps:
          - name: Checkout
            uses: actions/checkout@v4
@@ -34,23 +36,24 @@ jobs:
          - name: Build image
            run: |
               SHORT_SHA=$(git rev-parse --short=7 HEAD)
-              docker build -t ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA} .
+              IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
+              docker build -t "${IMAGE_REPO}" .
 
          - name: Push image
            run: |
               SHORT_SHA=$(git rev-parse --short=7 HEAD)
-              docker push ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}
+              IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
+              docker push "$IMAGE_REPO"
 
          - name: Build template deployment
            run: |
               SHORT_SHA=$(git rev-parse --short=7 HEAD)
               .deploy/build_deployment.sh STACK="${{ github.event.repository.name }}" \
               DEPLOYMENT_ENVIROMENT="${{ env.ENVIRONMENT }}" \
-              IMAGE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'):$SHORT_SHA" \
+              IMAGE="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}" \
               CADDY_HOST="${{ vars.HOST_DNS }}" \
               CADDY_TLS="${{ vars.TLS}}" \
               > /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml
-           # add more environment variables here same debug.sh and deployment.template.yml before > redirect /tmp/...
 
          - name: Set up SSH key
            uses: webfactory/ssh-agent@v0.5.3
@@ -58,7 +61,9 @@ jobs:
               ssh-private-key: ${{ secrets.HOST_SSH_PRIVATE_KEY }}
 
          - name: Copy deployment file to server
-           run: scp -o StrictHostKeyChecking=no -P ${{ secrets.HOST_SSH_PORT}} /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml deploy@${{ secrets.HOST_SSH_NAME }}:/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml
+           run: |
+              FILE_PATH="/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
+              scp -o StrictHostKeyChecking=no -P ${{ secrets.HOST_SSH_PORT}} "$FILE_PATH" deploy@${{ secrets.HOST_SSH_NAME }}:"$FILE_PATH"
 
          - name: Docker login on server
            run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}"
@@ -66,14 +71,17 @@ jobs:
          - name: Pull image on server
            run: |
               SHORT_SHA=$(git rev-parse --short=7 HEAD)
-              ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker pull ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
+              IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
+              ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker pull ${IMAGE_REPO}"
 
          - name: Deploy to Docker swarm
-           run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker stack deploy -c /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml ${{ github.event.repository.name }}-${{ env.ENVIRONMENT }}"
+           run: |
+              FILE_PATH="/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
+              ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker stack deploy -c "$FILE_PATH" ${{ github.event.repository.name }}-${{ env.ENVIRONMENT }}"
 
-         # - name: Clean up deployment file on server
-         #   if: always()
-         #   run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "rm -f /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
+         - name: Clean up deployment file on server
+           if: always()
+           run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "rm -f /tmp/*.yml"
 
          - name: Delete deployment file locally
            if: always()
