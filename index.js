@@ -51,6 +51,8 @@ const rootFiles = [
    'Dockerfile.api',
    'Dockerfile.api.only-js',
    'Dockerfile.NET.sdk-7',
+   'Dockerfile.angular',
+   'nginx.conf'
 ];
 
 rootFiles.forEach((file) => {
