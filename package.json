@@ -14,7 +14,9 @@
       "Dockerfile.nextjs",
       "Dockerfile.api",
       "Dockerfile.api.only-js",
-      "Dockerfile.NET.sdk-7"
+      "Dockerfile.NET.sdk-7",
+      "Dockerfile.angular",
+      "nginx.conf"
    ],
    "scripts": {
       "test": "./.deploy/debug.sh"
