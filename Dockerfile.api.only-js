@@ -1,3 +1,8 @@
+# Team: Romanshk Volkov - https://github.com/RomanshkVolkov
+# Team: Diegode - https://github.com/diegode-tsx
+# Team: Alexandergv2117 - https://github.com/Alexandergv2117
+# Customer: Dwit México - https://dwitmexico.com
+
 # NODEJS API DOCKERFILE
 # Koa server simple js
 FROM node:20.11-alpine AS base
@@ -27,5 +32,5 @@ USER nodejs
 EXPOSE 8000
 ENV PORT=8000
 
-# check the main file for the dist folder 
+# check the main file for the dist folder
 CMD ["node", "server.js"]

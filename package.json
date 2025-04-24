@@ -1,47 +1,48 @@
 {
-   "name": "guz-deploy",
-   "version": "1.3.0",
-   "description": "this a fast start deployment standard docker swarm server and caddy",
-   "main": "./index.js",
-   "bin": {
-      "init": "./index.js"
-   },
-   "files": [
-      "dist",
-      ".deploy",
-      ".github",
-      ".dockerignore",
-      "Dockerfile.nextjs",
-      "Dockerfile.api",
-      "Dockerfile.api.only-js",
-      "Dockerfile.NET.sdk-7",
-      "Dockerfile.angular",
-      "nginx.conf"
-   ],
-   "scripts": {
-      "test": "./.deploy/debug.sh"
-   },
-   "repository": {
-      "type": "git",
-      "url": "git+https://github.com/RomanshkVolkov/guz-deploy.git"
-   },
-   "keywords": [
-      "server",
-      "caddy",
-      "github",
-      "container",
-      "registry",
-      "bash",
-      "automate",
-      "config",
-      "fast",
-      "start",
-      "nextjs"
-   ],
-   "author": "Alexandergv2117 | RomanshkVolkov",
-   "license": "MPL-2.0",
-   "bugs": {
-      "url": "https://github.com/RomanshkVolkov/guz-deploy/issues"
-   },
-   "homepage": "https://github.com/RomanshkVolkov/guz-deploy#readme"
+  "name": "guz-deploy",
+  "version": "1.3.1",
+  "description": "this a fast start deployment standard docker swarm server and caddy",
+  "main": "./index.js",
+  "bin": {
+    "init": "./index.js"
+  },
+  "files": [
+    "dist",
+    ".deploy",
+    ".github",
+    ".dockerignore",
+    "Dockerfile.golang",
+    "Dockerfile.nextjs",
+    "Dockerfile.api",
+    "Dockerfile.api.only-js",
+    "Dockerfile.NET.sdk-7",
+    "Dockerfile.angular",
+    "nginx.conf"
+  ],
+  "scripts": {
+    "test": "./.deploy/debug.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomanshkVolkov/guz-deploy.git"
+  },
+  "keywords": [
+    "server",
+    "caddy",
+    "github",
+    "container",
+    "registry",
+    "bash",
+    "automate",
+    "config",
+    "fast",
+    "start",
+    "nextjs"
+  ],
+  "author": "Alexandergv2117 | RomanshkVolkov",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/RomanshkVolkov/guz-deploy/issues"
+  },
+  "homepage": "https://github.com/RomanshkVolkov/guz-deploy#readme"
 }

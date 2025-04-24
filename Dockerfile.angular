@@ -1,4 +1,8 @@
-# Build
+# Team: Romanshk Volkov - https://github.com/RomanshkVolkov
+# Team: Diegode - https://github.com/diegode-tsx
+# Team: Alexandergv2117 - https://github.com/Alexandergv2117
+# Customer: Dwit México - https://dwitmexico.com
+
 FROM node:lts-alpine AS build
 WORKDIR /app
 

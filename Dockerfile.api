@@ -1,3 +1,8 @@
+# Team: Romanshk Volkov - https://github.com/RomanshkVolkov
+# Team: Diegode - https://github.com/diegode-tsx
+# Team: Alexandergv2117 - https://github.com/Alexandergv2117
+# Customer: Dwit México - https://dwitmexico.com
+
 # NODEJS API DOCKERFILE
 # express server or nestjs
 FROM node:20.11-alpine AS base
@@ -14,7 +19,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN corepack enable pnpm && pnpm run build
+RUN npm install
 
 FROM base AS runner
 WORKDIR /app
@@ -25,7 +30,7 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 --ingroup
 # express server or nestjs
 
 # prefer COPY . . and exclude by .dockerignore
-# warning to use .dockerignore for build necessary files on stage builder|
+# warning to use .dockerignore for build necessary files on stage builder |
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/dailyGetData ./dailyGetData
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist

@@ -1,70 +1,137 @@
 #!/usr/bin/env node
 
-const { copyFileSync, mkdirSync, readdirSync, statSync } = require('node:fs');
-const path = require('node:path');
-const url = require('node:url');
+const { copyFileSync, mkdirSync, readdirSync, statSync } = require("node:fs");
+const path = require("node:path");
+const url = require("node:url");
+const fs = require("node:fs");
 
-const folders = ['.deploy', '.github'];
+const folders = [".deploy", ".github"];
 
 // get the current directory of the script
 
 const currentDirectory = process.cwd(); // user current directory
 
-// function to copy a folder recursively
-function copyFolderRecursive(source, destination) {
-   mkdirSync(destination, { recursive: true }); // create destination folder if not exists
+function analizePackageJSON(pkg) {
+  try {
+    const pkgPath = path.join(currentDirectory, "package.json");
+    if (!fs.existsSync(pkgPath)) return false;
 
-   // read all files/folders in the directory
-   const items = readdirSync(source);
-   items.forEach((item) => {
-      const sourcePath = path.join(source, item);
-      const destinationPath = path.join(destination, item);
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    const depsArray = Object.values(deps);
+    const hasPackage = depsArray.some((dep) => dep.startsWith(pkg));
 
-      if (statSync(sourcePath).isDirectory()) {
-         copyFolderRecursive(sourcePath, destinationPath);
-      } else {
-         copyFileSync(sourcePath, destinationPath);
-      }
-   });
+    return hasPackage;
+  } catch {
+    return false;
+  }
 }
 
-folders.forEach((folder) => {
-   try {
-      const source = path.join(__dirname, folder); // ruta absoluta
-      const destination = path.join(currentDirectory, folder); // ruta dentro del proyecto
+function existFile(file) {
+  try {
+    const filePath = path.join(currentDirectory, file);
+    return fs.existsSync(filePath);
+  } catch {
+    return false;
+  }
+}
 
-      if (!statSync(source).isDirectory()) {
-         console.error(`Source is not a directory: ${source}`);
-         return;
-      }
+function copyFileToRootPath(file, renamed = undefined) {
+  try {
+    const source = path.join(__dirname, file);
+    const destination = path.join(currentDirectory, renamed ?? file);
 
-      copyFolderRecursive(source, destination);
-      console.log(`Copied ${folder} to ${destination}`);
-   } catch (error) {
-      console.error(`Error copying folder ${folder}:`, error.message);
-   }
-});
+    copyFileSync(source, destination);
+    console.log(`Copied ${file} to ${destination}`);
+  } catch (error) {
+    console.error(`Error copying file ${file}:`, error.message);
+  }
+}
 
-const rootFiles = [
-   '.dockerignore',
-   'Dockerfile.nextjs',
-   'Dockerfile.api',
-   'Dockerfile.api.only-js',
-   'Dockerfile.NET.sdk-7',
-   'Dockerfile.angular',
-   'nginx.conf'
-];
+// function to copy a folder recursively
+function copyFolderRecursive(source, destination) {
+  mkdirSync(destination, { recursive: true }); // create destination folder if not exists
 
-rootFiles.forEach((file) => {
-   try {
-      const source = path.join(__dirname, file);
-      const destination = path.join(currentDirectory, file);
+  // read all files/folders in the directory
+  const items = readdirSync(source);
+  for (const item of items) {
+    const sourcePath = path.join(source, item);
+    const destinationPath = path.join(destination, item);
 
-      copyFileSync(source, destination);
-      console.log(`Copied ${file} to ${destination}`);
-   } catch (error) {
-      console.error(`Error copying file ${file}:`, error.message);
-   }
-});
+    if (statSync(sourcePath).isDirectory()) {
+      copyFolderRecursive(sourcePath, destinationPath);
+    } else {
+      copyFileSync(sourcePath, destinationPath);
+    }
+  }
+}
 
-console.log('Done!');
+for (const folder of folders) {
+  try {
+    const source = path.join(__dirname, folder); // ruta absoluta
+    const destination = path.join(currentDirectory, folder); // ruta dentro del proyecto
+
+    if (!statSync(source).isDirectory()) {
+      console.error(`Source is not a directory: ${source}`);
+      continue;
+    }
+
+    copyFolderRecursive(source, destination);
+    console.log(`Copied ${folder} to ${destination}`);
+  } catch (error) {
+    console.error(`Error copying folder ${folder}:`, error.message);
+  }
+}
+
+const rootFiles = [".dockerignore"];
+
+for (const file of rootFiles) {
+  copyFileToRootPath(file);
+}
+
+const dockerImages = {
+  go: "Dockerfile.golang",
+  next: "Dockerfile.nextjs",
+  api: "Dockerfile.api",
+  koa: "Dockerfile.api.only-js",
+  NET: "Dockerfile.NET.sdk-7",
+  angular: "Dockerfile.angular",
+};
+
+const isNextjs = analizePackageJSON("next");
+if (isNextjs) {
+  copyFileToRootPath(dockerImages.next, "Dockerfile");
+}
+
+const isAngular = analizePackageJSON("@angular");
+if (isAngular) {
+  copyFileToRootPath(dockerImages.angular, "Dockerfile");
+  copyFileToRootPath("nginx.conf");
+}
+
+const isKoa = analizePackageJSON("koa");
+if (isKoa) {
+  copyFileToRootPath(dockerImages.koa, "Dockerfile");
+}
+
+const isExpress = analizePackageJSON("express");
+if (isExpress) {
+  copyFileToRootPath(dockerImages.api, "Dockerfile");
+}
+
+const isNestjs = analizePackageJSON("@nestjs");
+if (isNestjs) {
+  copyFileToRootPath(dockerImages.api, "Dockerfile");
+}
+
+const isGolang = existFile("go.mod");
+if (isGolang) {
+  copyFileToRootPath(dockerImages.go, "Dockerfile");
+}
+
+const isNetCore = existFile(".csproj");
+if (isNetCore) {
+  copyFileToRootPath(dockerImages.NET, "Dockerfile");
+}
+
+console.log("Done!");
