@@ -11,15 +11,16 @@ const folders = [".deploy", ".github"];
 
 const currentDirectory = process.cwd(); // user current directory
 
-function analizePackageJSON(pkg) {
+function analizePackageJSON(pk) {
   try {
     const pkgPath = path.join(currentDirectory, "package.json");
     if (!fs.existsSync(pkgPath)) return false;
 
     const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    console.debug(pkg);
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    const depsArray = Object.values(deps);
-    const hasPackage = depsArray.some((dep) => dep.startsWith(pkg));
+    const depsArray = Object.keys(deps);
+    const hasPackage = depsArray.some((dep) => dep.startsWith(pk));
 
     return hasPackage;
   } catch {
@@ -104,7 +105,8 @@ if (isNextjs) {
 }
 
 const isAngular = analizePackageJSON("@angular");
-if (isAngular) {
+const isReact = analizePackageJSON("react");
+if (isAngular || isReact) {
   copyFileToRootPath(dockerImages.angular, "Dockerfile");
   copyFileToRootPath("nginx.conf");
 }
