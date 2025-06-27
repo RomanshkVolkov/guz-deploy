@@ -1,10 +1,10 @@
-name: Deploy to production
+name: Deploy to development
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main_ignore
+      - dev_ignore
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,7 +17,7 @@ jobs:
       contents: read
       packages: write
     env:
-      ENVIRONMENT: prod
+      ENVIRONMENT: dev
       REGISTRY: "ghcr.io"
       IMAGE: "${{ github.repository_owner }}/${{ github.event.repository.name}}"
     steps:
@@ -39,22 +39,6 @@ jobs:
           IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
           docker build -t "${IMAGE_REPO}" .
 
-      # if you need to pass build args to the dockerfile
-      # example of build with args
-      # important verified "\" at the end of line
-      # - name: Build image with args
-      #   run: |
-      #      SHORT_SHA=$(git rev-parse --short=7 HEAD)
-      #      IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
-      #      docker build \
-      #      --build-arg GIT_SHORT_HASH=${SHORT_SHA} \
-      #      -t "${IMAGE_REPO}" .
-      # IN your dockerfile recibe
-      # ARG GIT_SHORT_HASH
-      # ENV GIT_SHORT_HASH=${GIT_SHORT_HASH}
-      # SET post build
-      # ENV GIT_SHORT_HASH="something"
-
       - name: Push image
         run: |
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
@@ -62,13 +46,16 @@ jobs:
           docker push "$IMAGE_REPO"
 
       - name: Build template deployment
+        env:
+        DEPLOY_app_EXAMPLE: "some-secret-example"
         run: |
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
-          .deploy/build_deployment.sh STACK="${{ github.event.repository.name }}" \
-          DEPLOYMENT_ENVIROMENT="${{ env.ENVIRONMENT }}" \
-          IMAGE="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}" \
-          CADDY_HOST="${{ vars.HOST_DNS }}" \
-          CADDY_TLS="${{ vars.TLS}}" \
+          .deploy/build_deployment.sh \
+          -s "${{ github.event.repository.name }}" \
+          -e "${{ env.ENVIRONMENT }}" \
+          -i "${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}" \
+          -h "${{ vars.HOST_DNS }}" \
+          -t "${{ vars.TLS}}" \
           > /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml
 
       - name: Set up SSH key

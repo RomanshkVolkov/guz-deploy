@@ -2,19 +2,14 @@ services:
   STACK_PLACEHOLDER-app:
     image: IMAGE_PLACEHOLDER
     environment:
-      - PORT=3000
-      - EXAMPLE_ENV=EXAMPLE_ENV_PLACEHOLDER
-      # add more environment variables here same debug.sh and deployment.template.yml
     networks:
       - caddy
     deploy:
       replicas: 1
       labels:
-        caddy: CADDY_HOST_PLACEHOLDER
-        caddy.tls: CADDY_TLS_PLACEHOLDER
-        caddy.tls.on_demand:
+        caddy: HOST_PLACEHOLDER
+        caddy.tls: TLS_PLACEHOLDER
         caddy.reverse_proxy: "{{upstreams 3000}}" # important check same value on Dockerfile and PORT enviroment var
-
 
 networks:
   caddy:
