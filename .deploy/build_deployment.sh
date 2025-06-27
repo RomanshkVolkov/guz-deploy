@@ -153,7 +153,8 @@ while getopts "s:e:i:h:t:" arg; do
     h) host="$OPTARG" ;;
     t) tls="$OPTARG" ;;
     *) 
-      echo "Uso: $0 -s <stack> -e <environment> -i <image> -h <host> [-t <tls>]"
+      errorMessage "Usage: $0 -s <stack> -e <environment> -i <image> -h <host> -t <tls>"
+      errorMessage "Example: $0 -s stack -e dev -i gr.images.com -h caddy-host.com -t examples@email.com"
       exit 1
       ;;
   esac

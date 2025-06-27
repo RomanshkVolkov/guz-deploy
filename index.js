@@ -4,6 +4,7 @@ const { copyFileSync, mkdirSync, readdirSync, statSync } = require("node:fs");
 const path = require("node:path");
 const url = require("node:url");
 const fs = require("node:fs");
+const { exec } = require("node:child_process");
 
 const folders = [".deploy", ".github"];
 
@@ -92,6 +93,7 @@ for (const file of rootFiles) {
 
 const dockerImages = {
   go: "Dockerfile.golang",
+  deno: "Dockerfile.deno",
   next: "Dockerfile.nextjs",
   api: "Dockerfile.api",
   koa: "Dockerfile.api.only-js",
@@ -136,4 +138,12 @@ if (isNetCore) {
   copyFileToRootPath(dockerImages.NET, "Dockerfile");
 }
 
-console.log("Done!");
+const isDenoProject = existFile("deno.json") || existFile("deno.*")
+if (isDenoProject) {
+  copyFileToRootPath(dockerImages.deno, "Dockerfile")
+}
+
+exec('chmod +x .deploy/*.sh')
+
+console.info("Done!");
+console.info("Remember validate exec permissions on .deploy/*.sh files")
