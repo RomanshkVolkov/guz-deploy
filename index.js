@@ -2,7 +2,6 @@
 
 const { copyFileSync, mkdirSync, readdirSync, statSync } = require("node:fs");
 const path = require("node:path");
-const url = require("node:url");
 const fs = require("node:fs");
 const { exec } = require("node:child_process");
 
@@ -93,13 +92,19 @@ for (const file of rootFiles) {
 
 const dockerImages = {
   go: "Dockerfile.golang",
-  deno: "Dockerfile.deno",
+  "svelte-node": "Dockerfile.svelte-node-adapter",
   next: "Dockerfile.nextjs",
+  deno: "Dockerfile.deno",
   api: "Dockerfile.api",
   koa: "Dockerfile.api.only-js",
   NET: "Dockerfile.NET.sdk-7",
   angular: "Dockerfile.angular",
 };
+
+const isSvelteNode = analizePackageJSON("@sveltejs/adapter-node");
+if (isSvelteNode) {
+  copyFileToRootPath(dockerImages["svelte-node"], "Dockerfile");
+}
 
 const isNextjs = analizePackageJSON("next");
 if (isNextjs) {
@@ -138,12 +143,12 @@ if (isNetCore) {
   copyFileToRootPath(dockerImages.NET, "Dockerfile");
 }
 
-const isDenoProject = existFile("deno.json") || existFile("deno.*")
+const isDenoProject = existFile("deno.json") || existFile("deno.*");
 if (isDenoProject) {
-  copyFileToRootPath(dockerImages.deno, "Dockerfile")
+  copyFileToRootPath(dockerImages.deno, "Dockerfile");
 }
 
-exec('chmod +x .deploy/*.sh')
+exec("chmod +x .deploy/*.sh");
 
 console.info("Done!");
-console.info("Remember validate exec permissions on .deploy/*.sh files")
+console.info("Remember validate exec permissions on .deploy/*.sh files");
