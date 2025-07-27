@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev_ignore
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,7 +47,7 @@ jobs:
 
       - name: Build template deployment
         env:
-        DEPLOY_app_EXAMPLE: "some-secret-example"
+          DEPLOY_app_EXAMPLE: "some-secret-example"
         run: |
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
           .deploy/build_deployment.sh \
