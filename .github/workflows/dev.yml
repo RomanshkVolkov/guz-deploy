@@ -56,7 +56,7 @@ jobs:
           -i "${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}" \
           -h "${{ vars.HOST_DNS }}" \
           -t "${{ vars.TLS}}" \
-          > /tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml
+          -o "/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
 
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.3

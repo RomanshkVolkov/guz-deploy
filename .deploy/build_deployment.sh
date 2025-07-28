@@ -141,20 +141,21 @@ run_build_template() {
   # 
   message "File deployment generated succesfully"
 
-  cat $temp_yaml
+  cp "$temp_yaml" "$output"
 }
 
 # process args
-while getopts "s:e:i:h:t:" arg; do
+while getopts "s:e:i:h:t:o:" arg; do
   case $arg in
     s) stack="$OPTARG" ;;
     e) environment="$OPTARG" ;;
     i) image="$OPTARG" ;;
     h) host="$OPTARG" ;;
     t) tls="$OPTARG" ;;
+    o) output="$OPTARG ;;"
     *) 
-      errorMessage "Usage: $0 -s <stack> -e <environment> -i <image> -h <host> -t <tls>"
-      errorMessage "Example: $0 -s stack -e dev -i gr.images.com -h caddy-host.com -t examples@email.com"
+      errorMessage "Usage: $0 -s <stack> -e <environment> -i <image> -h <host> -t <tls> -o <output.yml>"
+      errorMessage "Example: $0 -s stack -e dev -i gr.images.com -h caddy-host.com -t examples@email.com -o output_file.yml"
       exit 1
       ;;
   esac
