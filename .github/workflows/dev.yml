@@ -66,25 +66,25 @@ jobs:
       - name: Copy deployment file to server
         run: |
           FILE_PATH="/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
-          scp -o StrictHostKeyChecking=no -P ${{ secrets.HOST_SSH_PORT}} "$FILE_PATH" deploy@${{ secrets.HOST_SSH_NAME }}:"$FILE_PATH"
+          scp -o StrictHostKeyChecking=no -P ${{ secrets.HOST_SSH_PORT}} "$FILE_PATH" ${{ secrets.HOST_SSH_USERNAME }}@${{ secrets.HOST_SSH_NAME }}:"$FILE_PATH"
 
       - name: Docker login on server
-        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}"
+        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} ${{ secrets.HOST_SSH_USERNAME }}@${{ secrets.HOST_SSH_NAME }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}"
 
       - name: Pull image on server
         run: |
           SHORT_SHA=$(git rev-parse --short=7 HEAD)
           IMAGE_REPO="${{ env.REGISTRY }}/$(echo "${{ env.IMAGE }}" | tr '[:upper:]' '[:lower:]'):${SHORT_SHA}"
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker pull ${IMAGE_REPO}"
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} ${{ secrets.HOST_SSH_USERNAME }}@${{ secrets.HOST_SSH_NAME }} "docker pull ${IMAGE_REPO}"
 
       - name: Deploy to Docker swarm
         run: |
           FILE_PATH="/tmp/${{ github.event.repository.name }}.${{ env.ENVIRONMENT }}.deployment.yml"
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "docker stack deploy -c "$FILE_PATH" ${{ github.event.repository.name }}-${{ env.ENVIRONMENT }}"
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} ${{ secrets.HOST_SSH_USERNAME }}@${{ secrets.HOST_SSH_NAME }} "docker stack deploy -c "$FILE_PATH" ${{ github.event.repository.name }}-${{ env.ENVIRONMENT }}"
 
       - name: Clean up deployment file on server
         if: always()
-        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} deploy@${{ secrets.HOST_SSH_NAME }} "rm -f /tmp/*.yml"
+        run: ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOST_SSH_PORT }} ${{ secrets.HOST_SSH_USERNAME }}@${{ secrets.HOST_SSH_NAME }} "rm -f /tmp/*.yml"
 
       - name: Delete deployment file locally
         if: always()

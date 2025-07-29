@@ -123,9 +123,9 @@ run_build_template() {
   for service_name in "${!service_envs[@]}"; do
     local full_service_name="$stack-$environment-$service_name"
     local env_list=$(echo -e "${service_envs[$service_name]}" | sort | uniq | sed '/^$/d')
-    
+
     message "Start processing var inject on service $full_service_name"
-    
+
     # validate if service exist on template
     if ! yq eval ".services.$full_service_name" $temp_yaml | grep -q 'null'; then
       while IFS= read -r env_var; do
@@ -138,7 +138,7 @@ run_build_template() {
     fi
   done
 
-  # 
+  #
   message "File deployment generated succesfully"
 
   cp "$temp_yaml" "$output"
@@ -152,8 +152,8 @@ while getopts "s:e:i:h:t:o:" arg; do
     i) image="$OPTARG" ;;
     h) host="$OPTARG" ;;
     t) tls="$OPTARG" ;;
-    o) output="$OPTARG ;;"
-    *) 
+    o) output="$OPTARG" ;;
+    *)
       errorMessage "Usage: $0 -s <stack> -e <environment> -i <image> -h <host> -t <tls> -o <output.yml>"
       errorMessage "Example: $0 -s stack -e dev -i gr.images.com -h caddy-host.com -t examples@email.com -o output_file.yml"
       exit 1
